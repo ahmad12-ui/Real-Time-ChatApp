@@ -3,10 +3,8 @@ const Conf = {
   AppWriteProjectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
   AppWriteBucketId: import.meta.env.VITE_APPWRITE_BUCKET_ID,
 
-  AppWriteDocumentId: import.meta.env.VITE_APPWRITE_DOCUMENT_ID,
+  AppWriteDatabaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID,
   AppWriteCollectionId: import.meta.env.VITE_APPWRITE_COLLECTION_ID,
-
-  AppWriteChatDocumentId: import.meta.env.VITE_APPWRITE_CHAT_DOCUMENT_ID,
   AppWriteChatCollectionId: import.meta.env.VITE_APPWRITE_CHAT_COLLECTION_ID,
 };
 export default Conf;

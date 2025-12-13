@@ -31,7 +31,7 @@ export class MsgDatabase {
           receiverId,
           text,
           imageUrl,
-          // timeStamp: Date.now(),
+          //timeStamp: Date.now(),
           seen: false,
         }
       );
@@ -48,17 +48,17 @@ export class MsgDatabase {
         Conf.AppWriteDatabaseId,
         Conf.AppWriteChatCollectionId,
         [
-          Query.or(
-            Query.and(
+          Query.or([
+            Query.and([
               Query.equal("senderId", user1),
-              Query.equal("receiverId", user2)
-            ),
-            Query.and(
+              Query.equal("receiverId", user2),
+            ]),
+            Query.and([
               Query.equal("senderId", user2),
-              Query.equal("receiverId", user1)
-            )
-          ),
-          Query.orderAsc("timeStamp"),
+              Query.equal("receiverId", user1),
+            ]),
+          ]),
+          Query.orderAsc("$createdAt"),
         ]
       );
     } catch (error) {

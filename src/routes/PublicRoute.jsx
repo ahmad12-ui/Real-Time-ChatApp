@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 function PublicRoute({ childern }) {
   const status = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  return <div>{status ? navigate("/chat") : childern}</div>;
+  return <div>{status ? navigate("/chatlayout") : childern}</div>;
 }
 
 export default PublicRoute;

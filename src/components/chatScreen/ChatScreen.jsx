@@ -4,9 +4,14 @@ import msgDataService from "../../Appwrite/msgDatabase";
 
 function ChatScreen() {
   const selectedUser = useSelector((state) => state.chat.selectedUser);
+  // console.log(selectedUser);
+
   const currentUser = useSelector((state) => state.auth.userData);
+  // console.log(currentUser);
 
   const [messages, setMessages] = useState([]);
+  console.log("msg first time", messages);
+
   const [text, setText] = useState("");
 
   const scrollRef = useRef();
@@ -27,6 +32,7 @@ function ChatScreen() {
       if (isMyChat) {
         setMessages((prev) => [...prev, newMsg]);
       }
+      console.log("message after setting ", messages);
     });
 
     return () => {
@@ -36,15 +42,25 @@ function ChatScreen() {
 
   // Load chat history
   const loadMessages = async () => {
+    console.log("currentUser", currentUser.$id);
+    console.log("selectedUser ", selectedUser.$id);
+
     const response = await msgDataService.listMessage({
       user1: currentUser.$id,
       user2: selectedUser.$id,
     });
-
+    if (!response) {
+      console.log("response is not comming ");
+    }
     if (response?.documents) {
+      console.log("this is response document ", response.documents);
+
       setMessages(response.documents);
     }
   };
+  useEffect(() => {
+    console.log("messages updated:", messages);
+  }, [messages]);
 
   // Send message
   const sendHandler = async () => {

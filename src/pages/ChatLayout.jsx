@@ -3,6 +3,7 @@ import UserList from "../components/userList/Userlist";
 import ChatScreen from "../components/chatScreen/ChatScreen";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
+import LogoutBtn from "../components/logoutBtn";
 function ChatLayout() {
   return (
     <>
@@ -20,8 +21,10 @@ function ChatLayout() {
           <div className="mb-4 cursor-pointer hover:text-red-700 text-gray-400">
             🛎️
           </div>
+          <div className=" absolute bottom-3 text-[#8B0000]">
+            <LogoutBtn />
+          </div>
         </div>
-
         {/* Users List Panel */}
         <div className="w-80 border-r border-gray-800 overflow-y-auto">
           <UserList />

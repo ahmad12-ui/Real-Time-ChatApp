@@ -4,19 +4,13 @@ import msgDataService from "../../Appwrite/msgDatabase";
 
 function ChatScreen() {
   const selectedUser = useSelector((state) => state.chat.selectedUser);
-  // console.log(selectedUser);
-
   const currentUser = useSelector((state) => state.auth.userData);
-  // console.log(currentUser);
 
   const [messages, setMessages] = useState([]);
-  console.log("msg first time", messages);
-
   const [text, setText] = useState("");
 
   const scrollRef = useRef();
 
-  // Load messages & realtime listener
   useEffect(() => {
     if (!selectedUser || !currentUser) return;
 
@@ -32,37 +26,22 @@ function ChatScreen() {
       if (isMyChat) {
         setMessages((prev) => [...prev, newMsg]);
       }
-      console.log("message after setting ", messages);
     });
 
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
+    return () => unsubscribe && unsubscribe();
   }, [selectedUser?.$id, currentUser?.$id]);
 
-  // Load chat history
   const loadMessages = async () => {
-    console.log("currentUser", currentUser.$id);
-    console.log("selectedUser ", selectedUser.$id);
-
     const response = await msgDataService.listMessage({
       user1: currentUser.$id,
       user2: selectedUser.$id,
     });
-    if (!response) {
-      console.log("response is not comming ");
-    }
-    if (response?.documents) {
-      console.log("this is response document ", response.documents);
 
+    if (response?.documents) {
       setMessages(response.documents);
     }
   };
-  useEffect(() => {
-    console.log("messages updated:", messages);
-  }, [messages]);
 
-  // Send message
   const sendHandler = async () => {
     if (!text.trim()) return;
 
@@ -81,198 +60,70 @@ function ChatScreen() {
 
   if (!selectedUser) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-400">
-        Select a user to start chat
+      <div className="h-full flex items-center justify-center text-gray-500 text-lg">
+        Select a user to start chatting
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-black">
-      {/* Top Bar */}
-      <div className="p-4 border-b border-gray-800 flex items-center">
-        <h2 className="text-white text-lg">{selectedUser.name}</h2>
+    <div className="h-full flex flex-col">
+      {/* Header bar */}
+      <div className="px-6 py-4 border-b border-gray-900 bg-gray-950 flex items-center gap-4">
+        <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center font-medium">
+          {selectedUser.name?.charAt(0)?.toUpperCase() || "?"}
+        </div>
+        <h2 className="font-semibold text-lg">{selectedUser.name}</h2>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-black">
         {messages.map((msg) => {
           const isMine = msg.senderId === currentUser.$id;
           return (
             <div
               key={msg.$id}
-              className={`max-w-xs p-3 rounded-xl text-sm ${
-                isMine
-                  ? "ml-auto bg-[#8B0000] text-white"
-                  : "mr-auto bg-gray-800 text-gray-200"
-              }`}
+              className={`flex ${isMine ? "justify-end" : "justify-start"}`}
             >
-              {msg.text}
+              <div
+                className={`
+                  max-w-[70%] px-5 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm
+                  ${
+                    isMine
+                      ? "bg-[#8B0000] text-white rounded-br-none"
+                      : "bg-gray-900 text-gray-100 rounded-bl-none"
+                  }
+                `}
+              >
+                {msg.text}
+              </div>
             </div>
           );
         })}
         <div ref={scrollRef} />
       </div>
 
-      {/* Input Box */}
-      <div className="p-3 border-t border-gray-800 flex gap-2">
-        <input
-          type="text"
-          className="flex-1 px-3 py-2 rounded-xl bg-gray-900 text-white border border-gray-700 outline-none"
-          placeholder="Type message…"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendHandler()}
-        />
-
-        <button
-          onClick={sendHandler}
-          className="bg-[#8B0000] px-4 py-2 rounded-xl text-white"
-        >
-          Send
-        </button>
+      {/* Input area */}
+      <div className="p-4 border-t border-gray-900 bg-gray-950">
+        <div className="flex gap-3 max-w-4xl mx-auto">
+          <input
+            type="text"
+            className="flex-1 px-6 py-4 rounded-2xl bg-gray-900 border border-gray-800 text-white placeholder-gray-500 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/40 transition-all"
+            placeholder="Type a message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendHandler()}
+          />
+          <button
+            onClick={sendHandler}
+            className="px-8 py-4 bg-[#8B0000] hover:bg-maroon-700 text-white font-medium rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-[#8B0000]/30 active:scale-95"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
 export default ChatScreen;
-
-// import React, { useEffect, useState, useRef } from "react";
-// import { useSelector } from "react-redux";
-// import msgDataService from "../../Appwrite/msgDatabase";
-
-// function ChatScreen() {
-//   const selectedUser = useSelector((state) => state.chat.selectedUser);
-//   const currentUser = useSelector((state) => state.auth.userData);
-
-//   const [messages, setMessages] = useState([]);
-//   const [text, setText] = useState("");
-
-//   const scrollRef = useRef();
-
-//   // Load messages when user selected
-//   useEffect(() => {
-//     if (!selectedUser || !currentUser) return;
-
-//     loadMessages();
-//     const unsub = liveListener();
-
-//     return () => unsub && unsub();
-//   }, [selectedUser, currentUser]);
-
-//   // Load chat history
-//   const loadMessages = async () => {
-//     try {
-//       const response = await msgDataService.listMessage({
-//         user1: currentUser.$id,
-//         user2: selectedUser.$id,
-//       });
-
-//       setMessages(response.documents);
-//     } catch (error) {
-//       console.log("Error loading messages:", error);
-//     }
-//   };
-
-//   // Live listener (Appwrite Realtime)
-//   const liveListener = () => {
-//     const unsubscribe = msgDataService.subscribeMessages((newMsg) => {
-//       const { senderId, receiverId } = newMsg;
-
-//       const isMyChat =
-//         (senderId === selectedUser.$id && receiverId === currentUser.$id) ||
-//         (receiverId === selectedUser.$id && senderId === currentUser.$id);
-
-//       if (isMyChat) {
-//         setMessages((prev) => [...prev, newMsg]); // LOCAL UPDATE
-//       }
-//     });
-
-//     return unsubscribe;
-//   };
-
-//   // Send message
-//   const sendHandler = async () => {
-//     if (!text.trim()) return;
-
-//     const msgData = {
-//       text,
-//       senderId: currentUser.$id,
-//       receiverId: selectedUser.$id,
-//       seen: false,
-//     };
-
-//     try {
-//       await msgDataService.sendMessage(msgData);
-//       setText(""); // clear input
-//     } catch (error) {
-//       console.log("Send message error:", error);
-//     }
-//   };
-
-//   // Auto scroll
-//   useEffect(() => {
-//     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-//   }, [messages]);
-
-//   // If no user selected
-//   if (!selectedUser) {
-//     return (
-//       <div className="h-full flex items-center justify-center text-gray-400">
-//         Select a user to start chat
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="h-full flex flex-col bg-black">
-//       {/* Top Bar */}
-//       <div className="p-4 border-b border-gray-800 flex items-center">
-//         <h2 className="text-white text-lg">{selectedUser.name}</h2>
-//       </div>
-
-//       {/* Messages */}
-//       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-//         {messages.map((msg) => {
-//           const isMine = msg.senderId === currentUser.$id;
-
-//           return (
-//             <div
-//               key={msg.$id}
-//               className={`max-w-xs p-3 rounded-xl text-sm ${
-//                 isMine
-//                   ? "ml-auto bg-[#8B0000] text-white"
-//                   : "mr-auto bg-gray-800 text-gray-200"
-//               }`}
-//             >
-//               {msg.text}
-//             </div>
-//           );
-//         })}
-//         <div ref={scrollRef} />
-//       </div>
-
-//       {/* Input Box */}
-//       <div className="p-3 border-t border-gray-800 flex gap-2">
-//         <input
-//           type="text"
-//           className="flex-1 px-3 py-2 rounded-xl bg-gray-900 text-white border border-gray-700 outline-none"
-//           placeholder="Type message…"
-//           value={text}
-//           onChange={(e) => setText(e.target.value)}
-//           onKeyDown={(e) => e.key === "Enter" && sendHandler()}
-//         />
-
-//         <button
-//           onClick={sendHandler}
-//           className="bg-[#8B0000] px-4 py-2 rounded-xl text-white"
-//         >
-//           Send
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ChatScreen;

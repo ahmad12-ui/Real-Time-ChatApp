@@ -1,34 +1,35 @@
 import authService from "../Appwrite/auth";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom"; // v6
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { login } from "../store/authSlice";
+import { useEffect, useState } from "react";
 
 function CheckLogin() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [msg, setMsg] = useState("login");
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await authService.getCurrentUser();
+      if (user) {
+        setMsg("already have session");
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const CheckSession = async () => {
     try {
       const user = await authService.getCurrentUser();
       if (user) {
-        // dispatch(login(user));
-        navigate("/chatlayout"); // redirect to chatlayout
+        navigate("/chatlayout");
       } else {
-        console.log("No active session");
+        navigate("/login");
       }
     } catch (err) {
       console.error("Error checking session:", err);
     }
   };
-
-  return (
-    <Button
-      children={"already have session"}
-      type={"button"}
-      onClick={CheckSession}
-    />
-  );
+  return <Button children={msg} type={"button"} onClick={CheckSession} />;
 }
 
 export default CheckLogin;
